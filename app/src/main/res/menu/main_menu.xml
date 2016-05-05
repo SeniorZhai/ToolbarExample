@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/notifation"
+        android:icon="@drawable/ic_notifications_white"
+        android:title="more"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/share"
+        android:icon="@drawable/ic_share_white"
+        android:title="more"
+
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/more"
+        android:icon="@drawable/ic_apps_white"
+        android:title="more"
+        app:showAsAction="never" />
+</menu>
