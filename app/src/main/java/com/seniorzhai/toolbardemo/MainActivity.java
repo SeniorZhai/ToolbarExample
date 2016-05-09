@@ -12,11 +12,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setLogo(R.mipmap.ic_launcher);
         toolbar.setTitle("Title");
         toolbar.setSubtitle("Subtitle");
         toolbar.setNavigationIcon(R.drawable.ic_navigate);
+        toolbar.setLogo(R.drawable.ic_logo);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
     }
 
     @Override
