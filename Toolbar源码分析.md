@@ -71,15 +71,16 @@ if (shouldLayout(mNavButtonView)) {
 ```
 值得注意的是onMesure方法中对Menu菜单的测量
 ```
-int menuWidth = 0;
-if (shouldLayout(mMenuView)) {
-    measureChildConstrained(mMenuView, widthMeasureSpec, width, heightMeasureSpec, 0, mMaxButtonHeight);
-    menuWidth = mMenuView.getMeasuredWidth() + getHorizontalMargins(mMenuView);
-    height = Math.max(height, mMenuView.getMeasuredHeight() + getVerticalMargins(mMenuView));
-    childState = ViewUtils.combineMeasuredStates(childState,
-    ViewCompat.getMeasuredState(mMenuView));
-}
-/* ---measureChildConstrained方法(Start)---*/
+    int menuWidth = 0;
+    if (shouldLayout(mMenuView)) {
+        measureChildConstrained(mMenuView, widthMeasureSpec, width, heightMeasureSpec, 0, mMaxButtonHeight);
+        menuWidth = mMenuView.getMeasuredWidth() + getHorizontalMargins(mMenuView);
+        height = Math.max(height, mMenuView.getMeasuredHeight() + getVerticalMargins(mMenuView));
+        childState = ViewUtils.combineMeasuredStates(childState,
+        ViewCompat.getMeasuredState(mMenuView));
+    }
+```
+```
     private void measureChildConstrained(View child, int parentWidthSpec, int widthUsed,
             int parentHeightSpec, int heightUsed, int heightConstraint) {
         final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
@@ -100,7 +101,6 @@ if (shouldLayout(mMenuView)) {
         }
         child.measure(childWidthSpec, childHeightSpec);
     }
-/* ---measureChildConstrained方法(End)---*/
 ```
 
 ###Layout方法
@@ -215,7 +215,7 @@ MenuPresenter从MenuBuilder对象读取菜单项并生成相应的菜单项子�
             if (mExpandedActionView instanceof CollapsibleActionView) {
                 ((CollapsibleActionView) mExpandedActionView).onActionViewCollapsed();
             }
-            
+
             removeView(mExpandedActionView);
             removeView(mCollapseButtonView);
             mExpandedActionView = null;
