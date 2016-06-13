@@ -69,7 +69,7 @@ if (shouldLayout(mNavButtonView)) {
 }
 ...
 ```
-值得主要的是onMesure方法中对Menu菜单的测量
+值得注意的是onMesure方法中对Menu菜单的测量
 ```
 int menuWidth = 0;
 if (shouldLayout(mMenuView)) {
@@ -79,7 +79,7 @@ if (shouldLayout(mMenuView)) {
     childState = ViewUtils.combineMeasuredStates(childState,
     ViewCompat.getMeasuredState(mMenuView));
 }
-/* ---measureChidConstrained方法(Start)---*/
+/* ---measureChildConstrained方法(Start)---*/
     private void measureChildConstrained(View child, int parentWidthSpec, int widthUsed,
             int parentHeightSpec, int heightUsed, int heightConstraint) {
         final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
@@ -100,7 +100,7 @@ if (shouldLayout(mMenuView)) {
         }
         child.measure(childWidthSpec, childHeightSpec);
     }
-/* ---measureChidConstrained方法(End)---*/
+/* ---measureChildConstrained方法(End)---*/
 ```
 
 ###Layout方法
@@ -117,7 +117,134 @@ if (shouldLayout(mNavButtonView)) {
 ```
 > 注:[关于RTL](https://developer.android.com/about/versions/android-4.2.html#RTL)
 
-##CustomView
+###ExpandedActionViewMenuPresenter
+ExpandedActionViewMenuPresenter实现MenuPresenter接口,用于构建弹出菜单。
+MenuPresenter从MenuBuilder对象读取菜单项并生成相应的菜单项子视图，创建的菜单项子视图被添加到菜单容器视图中，MenuPresenter也提供对MenuBuilder对象及其菜单项的获取及其它操作。
+```
+    private class ExpandedActionViewMenuPresenter implements MenuPresenter {
+        MenuBuilder mMenu;
+        MenuItemImpl mCurrentExpandedItem; //对应菜单项的具体实现类
+
+        @Override
+        public void initForMenu(Context context, MenuBuilder menu) {
+            // 当menu变动时重置ExpandedActionView
+            if (mMenu != null && mCurrentExpandedItem != null) {
+                mMenu.collapseItemActionView(mCurrentExpandedItem);
+            }
+            mMenu = menu;
+        }
+
+        @Override
+        public MenuView getMenuView(ViewGroup root) {
+            return null;
+        }
+
+        @Override
+        // 更新ActionMenuView 的子View
+        public void updateMenuView(boolean cleared) {
+            if (mCurrentExpandedItem != null) {
+                boolean found = false;
+
+                if (mMenu != null) {
+                    final int count = mMenu.size();
+                    for (int i = 0; i < count; i++) {
+                        final MenuItem item = mMenu.getItem(i);
+                        if (item == mCurrentExpandedItem) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found) {
+                    collapseItemActionView(mMenu, mCurrentExpandedItem);
+                }
+            }
+        }
+
+        @Override
+        public void setCallback(Callback cb) {
+        }
+
+        @Override
+        public boolean onSubMenuSelected(SubMenuBuilder subMenu) {
+            return false;
+        }
+
+        @Override
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        }
+
+        @Override
+        public boolean flagActionItems() {
+            return false;
+        }
+
+        @Override
+        // 展开时调用
+        public boolean expandItemActionView(MenuBuilder menu, MenuItemImpl item) {
+            ensureCollapseButtonView();
+            if (mCollapseButtonView.getParent() != Toolbar.this) {
+                addView(mCollapseButtonView);
+            }
+            mExpandedActionView = item.getActionView();
+            mCurrentExpandedItem = item;
+            // 添加ExpandedActionView到菜单项下
+            if (mExpandedActionView.getParent() != Toolbar.this) {
+                final LayoutParams lp = generateDefaultLayoutParams();
+                lp.gravity = GravityCompat.START | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
+                lp.mViewType = LayoutParams.EXPANDED;
+                mExpandedActionView.setLayoutParams(lp);
+                addView(mExpandedActionView);
+            }
+
+            removeChildrenForExpandedActionView();
+            requestLayout();
+            item.setActionViewExpanded(true);
+
+            if (mExpandedActionView instanceof CollapsibleActionView) {
+                ((CollapsibleActionView) mExpandedActionView).onActionViewExpanded();
+            }
+
+            return true;
+        }
+
+        @Override
+        // 折叠时调用
+        public boolean collapseItemActionView(MenuBuilder menu, MenuItemImpl item) {
+            if (mExpandedActionView instanceof CollapsibleActionView) {
+                ((CollapsibleActionView) mExpandedActionView).onActionViewCollapsed();
+            }
+            
+            removeView(mExpandedActionView);
+            removeView(mCollapseButtonView);
+            mExpandedActionView = null;
+
+            addChildrenForExpandedActionView();
+            mCurrentExpandedItem = null;
+            requestLayout();
+            item.setActionViewExpanded(false);
+
+            return true;
+        }
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public Parcelable onSaveInstanceState() {
+            return null;
+        }
+
+        @Override
+        public void onRestoreInstanceState(Parcelable state) {
+        }
+    }
+```
+
+###CustomView
 在onLayout方法中我们可以看到针对一系列CustomView的处理,Toolbar也有LayoutParams内部类
 Toolbar并没有直接设置CustomView的方法,我们要通过ActionBar进行设置
 ```
