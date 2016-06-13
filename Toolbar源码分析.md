@@ -63,6 +63,7 @@ if (shouldLayout(mNavButtonView)) {
     // 根据widthMeasureSpec、heightMeasureSpec测量子View
     measureChildConstrained(mNavButtonView, widthMeasureSpec, width, heightMeasureSpec, 0, mMaxButtonHeight);
     navWidth = mNavButtonView.getMeasuredWidth() + getHorizontalMargins(mNavButtonView);
+    // 高度要取出每个元素最大的高度
     height = Math.max(height, mNavButtonView.getMeasuredHeight() + getVerticalMargins(mNavButtonView));
     // 合并子元素的测量状态
     childState = ViewUtils.combineMeasuredStates(childState, ViewCompat.getMeasuredState(mNavButtonView));
